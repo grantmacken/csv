@@ -1,0 +1,13 @@
+sudo: required
+dist: xenial
+language: c
+services:
+- docker
+before_install: make up
+install: make
+script: 
+  - make test
+  - make smoke
+  - make coverage
+
+

@@ -1,0 +1,8 @@
+version: '3.4'
+services:
+  xQcsvService:
+    image: $DOCKER_IMAGE:$DOCKER_TAG
+    container_name: $CONTAINER
+    ports:
+      - $PORT:8080
+

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+source .env
+IPAddress=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER)
+URL="http://${IPAddress}:8080/exist/rest/db"
+SRC="content/${NAME}.xqm"
+BASENAME=$( basename $SRC)
+nsname=http://${NS_DOMAIN}/#${NAME}
+importNS=$(grep -oP '^module namespace(.+);$' $SRC)
+# copy the test file into container
+docker cp $SRC ${CONTAINER}:/tmp
+# echo $importNS
+function post() {
+curl  -s \
+  -H 'Content-Type: application/xml' \
+  -u 'admin:' \
+  --data-binary @- "$URL"
+}
+
+function awkward() {
+awk '
+ /^INFO/  {printf("\033[32m%s\033[0m\t%s\t%s %s %s\n",$1,$2,$3,$4,$5);next}
+ /^WARN/  {printf("\033[91m%s\033[0m\t%s\t%s %s %s\n",$1,$2,$3,$4,$5);next}
+{print}'
+$1
+} 
+
+
+
+
+# test:suite(xs:anyURI(\$route) => inspect:module-functions())
+# docker exec exDev cat webapp/WEB-INF/logs/profile.log
+
+cat <<EOF | post | awkward
+<query xmlns='http://exist.sourceforge.net/NS/exist' start='1' max='99' wrap='no'>
+<text><![CDATA[
+xquery version '3.1';
+import $importNS
+import module namespace inspect = "http://exist-db.org/xquery/inspection";
+declare default element namespace "http://exist-db.org/xquery/profiling";
+try {
+  let \$nl := "&#10;"
+  let \$modFuncs := inspect:module-functions-by-uri(xs:anyURI('$nsname') )
+return (
+ ' - functions in $NAME module:  '  || xs:string(count(\$modFuncs)) ,\$nl,
+for-each(\$modFuncs, function( \$func ){
+let \$name := inspect:inspect-function(\$func)/@name/string()
+let \$called := if (system:trace()//function[@name = (\$name) ]) 
+ then ( 'INFO! ' || \$name || ' called ' ||
+ system:trace()//function[@name = (\$name) ]/@calls ) || ' times'
+ else ( 'WARN! ' || \$name  || 'function was not called' )
+return ( \$called,\$nl )
+}),
+\$nl
+)} catch * {
+      'Error:${SRC}:' || \$err:code || ': '  || \$err:description || '&#10;'
+}
+]]></text>
+</query>
+EOF
+
+
+# for-each(system:trace()//function[substring-before(@name,':') = ('newBase60') ],
+# function( \$node ){
+# (\$node/@name/string() || ' call count: ' || \$node/@calls/string()  ,  \$nl)
+# }),\$nl,
+# inspect:inspect-function($function as function(*))
+
+#for-each(system:trace()//function, function( \$node ){(\$node/@name/string(),\$nl)})
+
+# system:trace()

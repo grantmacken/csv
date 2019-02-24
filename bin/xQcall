@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+source .env
+SRC="content/${NAME}.xqm"
+nsname=http://${NS_DOMAIN}/#${NAME}
+importNS=$(grep -oP '^module namespace(.+);$' $SRC)
+CALL="$1"
+
+IPAddress=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER)
+URL="http://${IPAddress}:8080/exist/rest/db"
+
+function post() {
+curl  -s \
+  -H 'Content-Type: application/xml' \
+  -u 'admin:' \
+  --data-binary @- "$URL"
+}
+cat <<EOF | post
+<query xmlns='http://exist.sourceforge.net/NS/exist' start='1' max='99' wrap='no'>
+<text><![CDATA[
+xquery version '3.1';
+import $importNS
+try {
+  let \$nl := "&#10;"
+return (
+${CALL},
+\$nl)} catch * {
+      'Error:${SRC}:' || \$err:code || ': '  || \$err:description || '&#10;'
+}
+]]></text>
+</query>
+EOF
+
+
