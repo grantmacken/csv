@@ -106,6 +106,16 @@ push-release:
 	@git tag v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 	@git push origin  v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 
+
+# 
+.PHONY: travis-enable
+travis-enable:
+	@echo '##[ $@ ]##'
+	@travis enable
+	@#travis encrypt TOKEN="$$(<../.myJWT)" --add 
+
+
+
 # https://docs.travis-ci.com/user/deployment/releases
 .PHONY: travis-setup-releases
 travis-setup-releases:
