@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+source .env
+IPAddress=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER)
+URL="http://${IPAddress}:8080/exist/rest/db"
+SRC="content/${NAME}.xqm"
+BASENAME=$( basename $SRC)
+nsname=http://${NS_DOMAIN}/#${NAME}
+importNS=$(grep -oP '^module namespace(.+);$' $SRC)
+# copy the test file into container
+docker cp $SRC ${CONTAINER}:/tmp
+# generic post function
+function post() {
+  curl  -s \
+    -H 'Content-Type: application/xml' \
+    -u 'admin:' \
+    --data-binary @- "$URL"
+  }
+
+function awkward() {
+awk -F':' '
+ /^INFO/  {printf("\033[32m%s\033[0m:%s\n",$1,$2);next}
+ /^WARN/  {printf("\033[91m%s\033[0m:%s\n",$1,$2);next}
+ /^ERROR/  {printf("\033[91m%s\033[0m:%s\n",$1,$2);next}
+{print}'
+"$@"
+} 
+
+cat <<EOF | post | awkward
+<query xmlns='http://exist.sourceforge.net/NS/exist' start='1' max='99' wrap='no'>
+<text><![CDATA[
+xquery version '3.1';
+import module namespace schematron = "http://github.com/Schematron/schematron-exist"; 
+(: at "/db/apps/schematron-exist/content/schematron.xqm"; :)
+try {
+  let \$nl := "&#10;"
+  let \$sch :=
+<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2"
+xmlns:sqf="http://www.schematron-quickfix.com/validator/process">
+   <sch:pattern>
+        <sch:title>title</sch:title>
+        <sch:p>paragraph</sch:p>
+         <sch:rule context="module">
+            <sch:assert test="description" role="error">
+              module should have a description block xQdoc annotation
+            </sch:assert>
+            <sch:assert test="see" role="error">
+              module should have a @see xQdoc annotation linking to source repo
+              </sch:assert>
+           <sch:assert test="author" role="error">
+              module should have a @author xQdoc annotation
+            </sch:assert>
+            <sch:assert test="version" role="error">
+              module should have a @version xQdoc annotation based on tagged commit
+            </sch:assert>
+            <sch:report test="author and version and see and description" role="info">
+              module 'described' and has xQdoc annotations @see, @version and @author
+            </sch:report>
+            <sch:report test="not(since)" role="warn">
+              module should have a @since xQdoc annotation
+            </sch:report>
+        </sch:rule>
+         <sch:rule context="function">
+         <sch:assert test="description" role="warn">
+                 function should have a @description xQdoc annotation 
+            </sch:assert>
+          </sch:rule>
+         <sch:rule context="argument">
+          <sch:report test="@type[ . = 'item()']" role="warn">function arg is type 'item()' type, perhaps use a more
+          specific type</sch:report>
+          <sch:report test="empty(text())" role="info">function argument should have a @param xQdoc annotation clarifying the argument </sch:report>
+          </sch:rule>
+         <sch:rule context="returns">
+          <sch:report test="@type[ . = 'item()']" role="warn">return is type 'item()', perhaps use more specific type</sch:report>
+          </sch:rule>
+   </sch:pattern>
+</sch:schema> =>
+schematron:compile()
+let \$svrl := '$nsname' => 
+               xs:anyURI() => 
+               inspect:inspect-module-uri() =>
+               schematron:validate(\$sch)
+  return (
+  for \$message in schematron:messages(\$svrl)
+  let \$level := schematron:message-level( \$message) => upper-case()
+  let \$description := string(schematron:message-description( \$message)) => normalize-space()
+  let \$location := schematron:message-location( \$message)
+  return ( \$level || ': ' || \$description  || ' - '||\$location ,     \$nl ) 
+,
+\$nl)} catch * {
+      'Error:${SRC}:' || \$err:code || ': '  || \$err:description || '&#10;'
+    }
+]]></text>
+</query>
+EOF
+
+# schematron:is-valid(\$svrl),\$nl,
+# (:
+# '$nsname' => 
+#         xs:anyURI() => 
+#        inspect:inspect-module-uri(),\$nl,
+# schematron:has-messages(\$svrl),\$nl,
+
