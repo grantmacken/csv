@@ -9,5 +9,6 @@ script:
   - make test
   - make smoke
   - make coverage
+  - make guide
 
 
