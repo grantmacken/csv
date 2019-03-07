@@ -3,8 +3,8 @@
 The <b>csv</b> library provides functions turn a csv file into an array of
 arrays
 
- You can visualise the array of arrays as being like a spreadsheet
- we have multiple records where each record is in a row 
+ You can visualise the array of arrays as being like a spreadsheet.
+ We have multiple records where each record is in a row 
  and each record contains fields in field column.
 
 The lib provides a simple mapping of the csv header line to the fields index integer
@@ -18,8 +18,7 @@ e.g.
 ```
 
 
- like a spreadsheet we can mathematicaly calculate (sum, average etc)
-:  a column  
+
 
 
 <!-- One Paragraph of project description goes here -->
