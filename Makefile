@@ -106,15 +106,15 @@ push-release:
 	@git tag v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 	@git push origin  v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 
+.PHONY: log
+log:
+	@docker logs -f --since 1m $(CONTAINER)
 
-# 
 .PHONY: travis-enable
 travis-enable:
 	@echo '##[ $@ ]##'
 	@travis enable
 	@#travis encrypt TOKEN="$$(<../.myJWT)" --add 
-
-
 
 # https://docs.travis-ci.com/user/deployment/releases
 .PHONY: travis-setup-releases
@@ -133,37 +133,39 @@ gitLog:
 .PHONY: smoke
 smoke: 
 	@echo '##[ $@ ]##'
-	@bin/xQcall 'oAuth1:example()' \
- | grep -oP '^\s-\s(\w|-)(.+)$$'
-	@bin/xQcall 'oAuth1:example()' \
- | grep -oP '^OAuth(.+)$$'
+	@bin/xQcall 'xQcsv:example()' \
+ | grep -oP '^(\d{4}(.+))|(.+\.\d{2})|(\s+)$$'
+
 
 .PHONY: coverage
 coverage: 
 	@echo '##[ $@ ]##'
-	@$(MAKE) down --silent
-	@$(MAKE) up --silent
-	@$(MAKE) --silent
-	@bin/xQcall 'system:enable-tracing(true())'
-	@bin/xQcall 'oAuth1:example()' &>/dev/null
-	@bin/xQcall 'system:enable-tracing(false())'
+	@bin/xQcall 'system:clear-trace()'  &>/dev/null
+	@bin/xQcall 'system:enable-tracing(true())'  &>/dev/null
+	@bin/xQcall 'xQcsv:example()' &>/dev/null
+	@bin/xQcall 'system:enable-tracing(false())' &>/dev/null
 	@bin/xQtrace
+
+.PHONY: guide
+guide: 
+	@echo '##[ $@ ]##'
+	@bin/xQguide
 
 .PHONY: rec-test
 rec-test:
-	asciinema rec tmp/oAuth1.cast \
+	asciinema rec tmp/csv.cast \
  --overwrite \
- --title='grantmacken/oAuth1 run `make test && make smoke && make coverage`  '\
+ --title='grantmacken/csv run `make test && make smoke && make coverage`  '\
  --command='make test --silent && make smoke --silent && make coverage --silent '
 
 .PHONY: rec-smoke
 rec-smoke:
-	asciinema rec tmp/oAuth1.cast --overwrite --title='grantmacken/oAuth1 run `make smoke`  ' --command='make smoke --silent'
+	asciinema rec tmp/csv.cast --overwrite --title='grantmacken/csv run `make smoke`  ' --command='make smoke --silent'
 
 PHONY: play
 play:
-	asciinema play tmp/oAuth1.cast
+	asciinema play tmp/csv.cast
 
 .PHONY: upload
 upload:
-	asciinema upload tmp/oAuth1.cast
+	asciinema upload tmp/csv.cast
