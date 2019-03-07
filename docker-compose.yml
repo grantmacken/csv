@@ -1,6 +1,6 @@
 version: '3.4'
 services:
-  xQcsvService:
+  csvService:
     image: $DOCKER_IMAGE:$DOCKER_TAG
     container_name: $CONTAINER
     ports:
