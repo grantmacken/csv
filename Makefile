@@ -133,7 +133,7 @@ gitLog:
 .PHONY: smoke
 smoke: 
 	@echo '##[ $@ ]##'
-	@bin/xQcall 'xQcsv:example()' \
+	@bin/xQcall 'csv:example()' \
  | grep -oP '^(\d{4}(.+))|(.+\.\d{2})|(\s+)$$'
 
 
@@ -142,7 +142,7 @@ coverage:
 	@echo '##[ $@ ]##'
 	@bin/xQcall 'system:clear-trace()'  &>/dev/null
 	@bin/xQcall 'system:enable-tracing(true())'  &>/dev/null
-	@bin/xQcall 'xQcsv:example()' &>/dev/null
+	@bin/xQcall 'csv:example()' &>/dev/null
 	@bin/xQcall 'system:enable-tracing(false())' &>/dev/null
 	@bin/xQtrace
 

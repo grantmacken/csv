@@ -12,8 +12,8 @@ So if we have a header named 'amount' we can 'sum' the amount feild column.
 e.g.
 
 ```
- let $field := $lines => xQcsv:mapFields($map)
- let $records := $lines => xQcsv:toArray($map)
+ let $field := $lines => csv:mapFields($map)
+ let $records := $lines => csv:toArray($map)
  let $sumAmount := string(sum( $records?*?($field('amount')) ! number(.)))
 ```
 
@@ -24,8 +24,8 @@ e.g.
 <!-- One Paragraph of project description goes here -->
 
 <!--
-[![Build Status](https://travis-ci.org/grantmacken/xQcsv.svg?branch=master)](https://travis-ci.org/grantmacken/oAuth1)
-[![GitHub release](https://img.shields.io/github/release/grantmacken/xQcsv/all.svg)](https://gitHub.com/grantmacken/xQcsv/releases/latest)
+[![Build Status](https://travis-ci.org/grantmacken/csv.svg?branch=master)](https://travis-ci.org/grantmacken/oAuth1)
+[![GitHub release](https://img.shields.io/github/release/grantmacken/csv/all.svg)](https://gitHub.com/grantmacken/csv/releases/latest)
 -->
 <!--
 # Using This Library
@@ -45,10 +45,10 @@ TODO!
 
 We use [SemVer](http://semver.org/) for versioning. 
 
-[latest release on this repo](https://github.com/grantmacken/xQcsv/releases/latest
+[latest release on this repo](https://github.com/grantmacken/csv/releases/latest
 -->
 <!--
-[![GitHub tag](https://img.shields.io/github/tag/grantmacken/xQcsv.svg)](https://gitHub.com/grantmacken/xQcsv/tags/)
+[![GitHub tag](https://img.shields.io/github/tag/grantmacken/csv.svg)](https://gitHub.com/grantmacken/csv/tags/)
 -->
 
 <!--
