@@ -5,10 +5,20 @@ services:
 - docker
 before_install: make up
 install: make
-script: 
-  - make test
-  - make smoke
-  - make coverage
-  - make guide
-
-
+script:
+- make test
+- make smoke
+- make coverage
+- make guide
+deploy:
+  provider: releases
+  api_key:
+    secure: mKR7ZvToykxXXyFKc2qcvlT0htJ0eeCll4YiMetnSXcvoH+qN3EwmV9jFnLVPxFv8CvpSgNYGV+ZJMI9zqZdHShYh1uK8i7xfOxGqyoIKFOALkVVdrw83MRihuaN2U9DGA2EkBTsqRaShxd6PqcoT9SuG1OIdomMdRo3tyUDQSMQ7qB+NoWphnsn3MYVf5LUIi753BSsvv2RzlpXR6gR1L5ve/MT8BKyUsATs0pqkCZ9NzFPdOeOSCTbGNrvQ6Q4he7fVVRaxoQrBgbtB0LR3PMchPBhG66JdC1lFWGKyLWSH0nbo12ISH8QjOKXFmKewKnISE8JHULJ4kcajzJ5omlgGESkzFgOnHMeLAtg6h0Wdct4Atr+GmX+Yqw8Y4s+5z2yFKM9v36QDJLbThRaXDA1+tqXuMnUSYy2D0dbIM2A3TTh523+zSHBpDmWqHRY+UNO2VqDeUv5pQozI13MSRAaNXfIw8Gxfuwp7AmClsBLl+IXlYTzKVS7Dx5lIZkwL9UsJcS4CGBbI83VJPPMGF5NZLS87RkCOVLvsqpH+auH/EnUHAqcvBYpi8oT3MUnh55rQ0yZPPku+z9Piuw2VYsihpgOEeRMnTjXqt1pK+VtVOT9XBG3g59dqduCpyfUbvJq6i93Qxhsm42sSN1IkHhsrIJfNqt0JaFNK+tS/Is=
+  file: deploy/oAuth1.xar
+  skip_cleanup: true
+  on:
+    repo: grantmacken/csv
+    tags: true
+    branch:
+    - master
+    - "/v\\d+\\.\\d+\\.\\d+/"
