@@ -1,9 +1,12 @@
 # yet another CSV xQuery Library module
 
+[![Build Status](https://travis-ci.org/grantmacken/csv.svg?branch=master)](https://travis-ci.org/grantmacken/csv)
+
 The <b>csv</b> xQuery library provides functions turn a CSV file into an array of
 arrays. You can visualise the array of arrays as being like a spreadsheet.
 We have multiple records where each record is in a row and each record contains fields in field column.
 
+[![asciicast](https://asciinema.org/a/232587.svg)](https://asciinema.org/a/232587)
 
 ## Use Case
 
@@ -25,7 +28,6 @@ Then this map to create an array of arrays
  return
  $map => csv:lines() => csv:toArray($map)
 ```
-
 
 ## Convenience Functions
 
