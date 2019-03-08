@@ -11,9 +11,9 @@ I intend to use this library for handling downloaded CSV financial statements.
 
 ## Basics
 
-The start basis is some CSV properties, 
+Start some CSV properties, 
 in the form of a key-value map. 
-The can use this map to create an array of arrays
+Then this map to create an array of arrays
 
 ```
  let $map := map { 
