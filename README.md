@@ -1,14 +1,18 @@
-# csv xQuery Library module
+# yet another CSV xQuery Library module
 
-The <b>csv</b> library provides functions turn a csv file into an array of
-arrays
+The <b>csv</b> xQuery library provides functions turn a CSV file into an array of
+arrays. You can visualise the array of arrays as being like a spreadsheet.
+We have multiple records where each record is in a row and each record contains fields in field column.
 
- You can visualise the array of arrays as being like a spreadsheet.
- We have multiple records where each record is in a row 
- and each record contains fields in field column.
 
-The lib provides a simple mapping of the csv header line to the fields index integer
-So if we have a header named 'amount' we can 'sum' the amount feild column.
+## Use Case
+
+I intend to use this library for handling downloaded CSV financial statements. 
+
+## Convenience Functions
+
+The lib provides a simple mapping of the CSV header line to the fields index integer
+So if we have a header named 'amount' we can 'sum' the amount field column.
 e.g.
 
 ```
@@ -16,6 +20,10 @@ e.g.
  let $records := $lines => csv:toArray($map)
  let $sumAmount := string(sum( $records?*?($field('amount')) ! number(.)))
 ```
+
+The library also provides some formating alignment functions so when rendering on a terminal all the field columns will be lined up.
+
+[![asciicast](https://asciinema.org/a/232385.svg)](https://asciinema.org/a/232385)
 
 
 
