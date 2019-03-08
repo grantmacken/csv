@@ -16,12 +16,13 @@ function put() {
   -u 'admin:' \
   -H 'Content-Type: text/csv' \
   --write-out '\nstatus: %{http_code}\n' \
-  -T $1 "$URL/$1"
+  -T $1 "$URL/$1" >> tmp/fixtures-put.log
 }
 
+echo  '' > tmp/fixtures-put.log
 if find "$FIXTURES" -mindepth 1 -print -quit 2>/dev/null | grep -q .; then
   find "$FIXTURES" -type f -iname "*.*" -print0 | while IFS= read -r -d $'\0' file; do
-    put $file
+    put $file 
   done
 fi
 # generic post function

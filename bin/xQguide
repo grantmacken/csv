@@ -93,10 +93,4 @@ let \$svrl := '$nsname' =>
 </query>
 EOF
 
-# schematron:is-valid(\$svrl),\$nl,
-# (:
-# '$nsname' => 
-#         xs:anyURI() => 
-#        inspect:inspect-module-uri(),\$nl,
-# schematron:has-messages(\$svrl),\$nl,
 

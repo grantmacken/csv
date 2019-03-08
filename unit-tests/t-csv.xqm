@@ -11,7 +11,6 @@ import module namespace test = "http://exist-db.org/xquery/xqsuite"
 
 declare
 %test:setUp
-%test:stats
 function t-csv:setUp(){
  (: util:log-system-out('INFO: test setup') :)
   ()
@@ -127,7 +126,7 @@ function t-csv:lastRecord(){
  let $lines :=  $map => csv:lines()
  let $field := $lines => csv:mapFields($map)
  let $records := $lines => csv:toArray($map)
- return 
+ return
  array:tail($records)
 };
 

@@ -136,7 +136,6 @@ smoke:
 	@bin/xQcall 'csv:example()' \
  | grep -oP '^(\d{4}(.+))|(.+\.\d{2})|(\s+)$$'
 
-
 .PHONY: coverage
 coverage: 
 	@echo '##[ $@ ]##'
@@ -151,21 +150,76 @@ guide:
 	@echo '##[ $@ ]##'
 	@bin/xQguide
 
+.PHONY: rec
+rec:
+	@mkdir ../tmp
+	@asciinema rec ../tmp/csv.cast \
+ --overwrite \
+ --title='grantmacken/csv ran `make up'\
+ --idle-time-limit 1 \
+ --command='nvim'
+
+.PHONY: rec-up
+rec-up:
+	@asciinema rec tmp/csv.cast \
+ --overwrite \
+ --title='grantmacken/csv ran `make up'\
+ --command='make up'
+
+.PHONY: rec-build
+rec-build:
+	@clear
+	@asciinema rec tmp/csv.cast \
+ --overwrite \
+ --title='grantmacken/csv ran `make'\
+ --command='make'
+
 .PHONY: rec-test
 rec-test:
-	asciinema rec tmp/csv.cast \
+	@clear
+	@asciinema rec tmp/csv.cast \
  --overwrite \
- --title='grantmacken/csv run `make test && make smoke && make coverage`  '\
- --command='make test --silent && make smoke --silent && make coverage --silent '
+ --title='grantmacken/csv ran `make test'\
+ --command='make test'
 
 .PHONY: rec-smoke
 rec-smoke:
-	asciinema rec tmp/csv.cast --overwrite --title='grantmacken/csv run `make smoke`  ' --command='make smoke --silent'
+	@clear
+	@asciinema rec tmp/csv.cast \
+ --overwrite \
+ --title='grantmacken/csv ran `make smoke'\
+ --command='make smoke'
+
+.PHONY: rec-cov
+rec-cov:
+	@clear
+	@asciinema rec tmp/csv.cast \
+ --overwrite \
+ --title='grantmacken/csv ran `make coverage'\
+ --command='make coverage'
+
+.PHONY: rec-guide
+rec-guide:
+	@clear
+	@asciinema rec tmp/csv.cast \
+ --overwrite \
+ --title='grantmacken/csv ran `make guide'\
+ --command='make guide'
+
+.PHONY: rec-test-all
+rec-test-all:
+	asciinema rec tmp/csv.cast \
+ --overwrite \
+ --title='grantmacken/csv run `make test && make smoke && make coverage and make guide`'\
+ --command='make test --silent && \
+            make smoke --silent && \
+            make coverage --silent && \
+            make guide --silent'
 
 PHONY: play
 play:
-	asciinema play tmp/csv.cast
+	@clear && asciinema play ../tmp/csv.cast
 
 .PHONY: upload
 upload:
-	asciinema upload tmp/csv.cast
+	asciinema upload ../tmp/csv.cast

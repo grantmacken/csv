@@ -10,8 +10,7 @@ xquery version "3.1";
 :  a column  
 :  
 : 
-: 
-: @author Grant MacKenzie
+: @author Grant Mackenzie
 : @version v0.0.1
 : @since 2019-03-07
 : @see https://github.com/grantmacken/csv
@@ -109,11 +108,16 @@ declare
 function csv:conditions( $map as map(*) ) as xs:boolean {
 (
   if ( map:contains($map, 'href' ) ) then (
-    if ( map:contains($map, 'record-start' ) ) then () 
-    else ( error( $csv:noKey , 'map has no record start key' ))
+    if ( not( map:contains($map, 'record-start' )) ) 
+       then ( error( $csv:noKey , 'map has no record-start key' )) 
+    else if (not( map:contains($map, 'header-line' ))  )
+        then ( error( $csv:noKey , 'map has no header-line key' ))
+    else if (not( map:contains($map, 'separator' ))  )
+        then ( error( $csv:noKey , 'map has no separator key' ))
+     else ()
     )
   else (error( $csv:noKey , 'map has no href key' ) ),
-  if ( unparsed-text-available($map('href')) ) then () 
+   if ( unparsed-text-available($map('href')) ) then () 
    else (error( $csv:noText , 'no csv file available' )),
   true()
 )};
