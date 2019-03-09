@@ -1,7 +1,4 @@
 SHELL=/bin/bash
-ifeq ("","$(wildcard ./VERSION)")
-    touch VERSION && echo 'v0.0.0' > VERSION
-endif
 LAST_TAG_COMMIT = $(shell git rev-list --tags --max-count=1)
 LAST_TAG = $(shell git describe --tags $(LAST_TAG_COMMIT) )
 TAG_PREFIX = "v"
@@ -35,7 +32,7 @@ clean:
 	@rm -rfv deploy &>/dev/null
 
 .PHONY: up
-up: | clean
+up: clean
 	@echo -e '##[ $@ ]##'
 	@bin/exStartUp
 	@touch VERSION && echo 'v0.0.1' > VERSION
@@ -104,7 +101,7 @@ prep-release:
 	echo $(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 
 .PHONY: release
-push-release:
+release:
 	@git tag v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 	@git push origin  v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 
