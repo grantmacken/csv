@@ -1,11 +1,28 @@
 SHELL=/bin/bash
+ifeq ("","$(wildcard ./VERSION)")
+    touch VERSION && echo 'v0.0.0' > VERSION
+endif
+LAST_TAG_COMMIT = $(shell git rev-list --tags --max-count=1)
+LAST_TAG = $(shell git describe --tags $(LAST_TAG_COMMIT) )
+TAG_PREFIX = "v"
+
+VERSION != grep -oP '^v\K(.+)$$' VERSION
 include .env
+
 git_user != git config user.name
 nsname=http://$(NS_DOMAIN)/\#$(NAME)
 title != echo $(TITLE)
-include inc/repo.mk inc/expath-pkg.mk
-.PHONY: all
-all: build
+include inc/*
+
+.PHONY: default
+default: clean compile-main build
+
+build: deploy/$(NAME).xar
+	@echo '##[ $@ ]##'
+	@bin/xQdeploy $<
+	@bin/semVer $(VERSION) patch > VERSION
+	@#touch unit-tests/t-$(NAME).xqm
+	@echo -n 'INFO: prepped for next build: ' && cat VERSION
 
 .PHONY: test
 test: compile-test
@@ -13,14 +30,15 @@ test: compile-test
 
 .PHONY: clean
 clean:
-	@rm -rfv tmp
-	@rm -rfv build
-	@rm -rfv deploy
+	@rm -rfv tmp &>/dev/null
+	@rm -rfv build &>/dev/null
+	@rm -rfv deploy &>/dev/null
 
 .PHONY: up
-up: 
+up: | clean
 	@echo -e '##[ $@ ]##'
 	@bin/exStartUp
+	@touch VERSION && echo 'v0.0.1' > VERSION
 
 .PHONY: down
 down:
@@ -68,40 +86,24 @@ deploy/$(NAME).xar: \
 	@mkdir -p $(dir $@)
 	@cd build && zip $(abspath $@) -r .
 
-.PHONY: build
-build: compile-main deploy/$(NAME).xar
-	@echo '##[ $@ ]##'
-	@bin/xQdeploy deploy/$(NAME).xar
-	@bin/semVer patch
-	@touch unit-tests/t-$(NAME).xqm
-
-.PHONY: reset
-reset:
-	@echo '##[ $@ ]##'
-	@git describe --abbrev=0 --tag
-	@# git describe --tags $(git rev-list --tags --max-count=1)
-	@echo 'revert .env VERSION to current tag' 
-	@source .env; sed -i "s/^VERSION=$${VERSION}/VERSION=$(shell git describe --abbrev=0 --tag )/" .env
-
 .PHONY: prep-release
 prep-release:
 	@echo '##[ $@ ]##'
-	@echo -n "current latest tag: " 
-	@git describe --abbrev=0 --tag
-	@# git describe --tags $(git rev-list --tags --max-count=1)
-	@echo 'revert .env VERSION to current tag' 
-	@sed -i "s/$(shell grep  -oP '^VERSION=(.+)' .env)/VERSION=$(shell git describe --abbrev=0 --tag )/" .env
-	@echo -n ' - bump the version: ' 
-	@bin/semVer patch
-	@grep -oP '^VERSION=\K(.+)$$' .env
+	@#echo ' - working VERSION: $(VERSION) ' 
+	@echo ' -        last tag: $(LAST_TAG)' 
+	@if [ -z '$(LAST_TAG)' ] ; \
+ then echo 'v0.0.0' > VERSION ; \
+ else echo '$(LAST_TAG)' > VERSION ; fi 
+	@bin/semVer $(VERSION) patch > VERSION
+	@echo -n ' -  bumped VERSION: ' 
+	@cat VERSION
 	@echo ' - do a build from the current tag' 
-	@$(MAKE) clean --silent
-	@$(MAKE) --silent
-	@grep -oP '^VERSION=v\K(.+)$$' .env
+	@$(MAKE) --silent &>/dev/null
+	@echo -n ' - expath-pkg version: ' 
 	@echo $$(grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
-	@echo 'v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)'
+	echo $(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 
-.PHONY: push-release
+.PHONY: release
 push-release:
 	@git tag v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 	@git push origin  v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
@@ -114,14 +116,12 @@ log:
 travis-enable:
 	@echo '##[ $@ ]##'
 	@travis enable
-	@#travis encrypt TOKEN="$$(<../.myJWT)" --add 
 
 # https://docs.travis-ci.com/user/deployment/releases
 .PHONY: travis-setup-releases
 travis-setup-releases:
 	@echo '##[ $@ ]##'
 	@travis setup releases
-	@#travis encrypt TOKEN="$$(<../.myJWT)" --add 
 
 .PHONY: gitLog
 gitLog:
