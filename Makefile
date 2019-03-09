@@ -86,24 +86,22 @@ deploy/$(NAME).xar: \
 .PHONY: prep-release
 prep-release:
 	@echo '##[ $@ ]##'
-	@#echo ' - working VERSION: $(VERSION) ' 
+	@echo ' - working VERSION: $(VERSION) ' 
 	@echo ' -        last tag: $(LAST_TAG)' 
 	@if [ -z '$(LAST_TAG)' ] ; \
  then echo 'v0.0.0' > VERSION ; \
  else echo '$(LAST_TAG)' > VERSION ; fi 
-	@bin/semVer $(VERSION) patch > VERSION
-	@echo -n ' -  bumped VERSION: ' 
-	@cat VERSION
-	@echo ' - do a build from the current tag' 
-	@$(MAKE) --silent &>/dev/null
+	@bin/semVer $$(< ./VERSION) patch > VERSION
+	@echo " -  bumped VERSION: $$(< ./VERSION) " 
+	@echo ' - do a build from the bumped version' 
+	@$(MAKE) --silent
 	@echo -n ' - expath-pkg version: ' 
-	@echo $$(grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
-	echo $(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
+	@grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml
 
 .PHONY: release
 release:
-	@git tag v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
-	@git push origin  v$(shell grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
+	@git tag v$$(grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
+	@git push origin  v$$(grep -oP 'version="\K((\d+\.){2}\d+)' build/expath-pkg.xml)
 
 .PHONY: log
 log:
