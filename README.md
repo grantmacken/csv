@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/grantmacken/csv.svg?branch=master)](https://travis-ci.org/grantmacken/csv)
 
+[![GitHub release](https://img.shields.io/github/release/grantmacken/csv/all.svg)](https://gitHub.com/grantmacken/csv/releases/latest)
+
 The <b>csv</b> xQuery library provides functions turn a CSV file into an array of
 arrays. You can visualise the array of arrays as being like a spreadsheet.
 We have multiple records where each record is in a row and each record contains fields in field column.
@@ -65,17 +67,6 @@ The CSV data comes from a downloaded monthly statement and is found in the unit-
 
 [![asciicast](https://asciinema.org/a/232385.svg)](https://asciinema.org/a/232385)
 
-
-
-
-
-
-<!-- One Paragraph of project description goes here -->
-
-<!--
-[![Build Status](https://travis-ci.org/grantmacken/csv.svg?branch=master)](https://travis-ci.org/grantmacken/oAuth1)
-[![GitHub release](https://img.shields.io/github/release/grantmacken/csv/all.svg)](https://gitHub.com/grantmacken/csv/releases/latest)
--->
 <!--
 # Using This Library
 
